@@ -64,44 +64,45 @@ asmEncrypt:
     # save the caller's registers, as required by the ARM calling convention
     push {r4-r11,LR}
     
-    /* YOUR asmEncrypt CODE BELOW THIS LINE! VVVVVVVVVVVVVVVVVVVVV  */
-    LDR r3,=cipherText
-   mov r6,r1
-   mov r7,122
+   /* YOUR asmEncrypt CODE BELOW THIS LINE! VVVVVVVVVVVVVVVVVVVVV  */
+    LDR r3,=cipherText /* gets address of cipherText */
+   mov r6,r1 /* copy of key */
+   mov r7,122 /* register for z */
    loop:
-   LDRB r4,[r0]
-   CMP r4,0
+   LDRB r4,[r0] /* loads the first character */
+   CMP r4,0 /* checks if its null */
    beq done 
    
    check_key_and_char:
-   cmp r1,0
+   cmp r1,0 /* if key is 0, move to store */
    beq encrypted
-   cmp r4,65
+   cmp r4,65 /* if decimal value is lower than A, move to store */
    bmi encrypted
-   cmp r7,r4
+   cmp r7,r4 /* if decimal value is greated than z, move to store */
    bmi encrypted
-   cmp r4,90
+   cmp r4,90 /*if decimal value is Z, reset to A */
    beq reset
-   cmp r4,122
+   cmp r4,122 /* if decimal value is z, reset to a */
    beq reset
    
    shift_by_1:
-   add r4,r4,1
-   sub r1,r1,1
+   add r4,r4,1 /* shifts character by 1 */
+   sub r1,r1,1 /* lowers key by 1 for current character */
    b check_key_and_char 
+  
    encrypted:
-   STRB r4,[r3]
-   add r0,r0,1
-   add r3,r3,1
-   add r1,r1,r6
+   STRB r4,[r3] /* stores current character into address of cipherText */
+   add r0,r0,1 /* adds 1 to r0 to get next character for encryption */
+   add r3,r3,1 /* adds 1 to cipherText to shift address where character will be stored */
+   add r1,r1,r6 /* resets the key for encrypting the next character */
    b loop
    
    reset:
-    sub r4,r4,26
+    sub r4,r4,26 /* resets Z to A or z to a */
     b shift_by_1
     
    done:
-    STRB r4,[r3]
+    STRB r4,[r3] /* stores the null bit in last address */
     LDR r0,=cipherText 
 
     /* YOUR asmEncrypt CODE ABOVE THIS LINE! ^^^^^^^^^^^^^^^^^^^^^  */
